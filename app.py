@@ -1,36 +1,39 @@
 import streamlit as st
 import pickle
 import pandas as pd
+import os
 
-import os  # <-- add this
-
-# Get the folder where app.py is located
+# -------------------- Paths --------------------
 BASE_DIR = os.path.dirname(__file__)
 
-# Load preprocessed data and models
+# Load preprocessed data and models safely
 df = pd.read_pickle(os.path.join(BASE_DIR, "songs_df.pkl"))
 tfidf_vectorizer = pickle.load(open(os.path.join(BASE_DIR, "tfidf_vectorizer.pkl"), "rb"))
 cosine_sim = pickle.load(open(os.path.join(BASE_DIR, "cosine_sim.pkl"), "rb"))
 
-# Function to get recommendations
+# -------------------- Recommendation Function --------------------
 def recommend(song_title):
-    # Strip whitespace and match case-insensitively
+    # Clean song names for matching
     df['song_clean'] = df['song'].str.strip().str.lower()
     song_title_clean = song_title.strip().lower()
-    
+
+    # Check if song exists
     if song_title_clean not in df['song_clean'].values:
         return ["❌ Song not found in database"]
-    
+
+    # Get index
     idx = df[df['song_clean'] == song_title_clean].index[0]
+
+    # Compute similarity scores
     sim_scores = list(enumerate(cosine_sim[idx]))
     sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
     sim_scores = sim_scores[1:6]  # top 5
+
+    # Return recommended songs
     song_indices = [i[0] for i in sim_scores]
     return df['song'].iloc[song_indices].tolist()
 
 # -------------------- Streamlit UI --------------------
-
-# Custom CSS for colorful design
 st.markdown("""
     <style>
     .stApp {
