@@ -14,13 +14,17 @@ cosine_sim = pickle.load(open(os.path.join(BASE_DIR, "cosine_sim.pkl"), "rb"))
 
 # Function to get recommendations
 def recommend(song_title):
-    if song_title not in df["song"].values:
+    # Strip whitespace and match case-insensitively
+    df['song_clean'] = df['song'].str.strip().str.lower()
+    song_title_clean = song_title.strip().lower()
+    
+    if song_title_clean not in df['song_clean'].values:
         return ["❌ Song not found in database"]
     
-    idx = df[df['song'] == song_title].index[0]
+    idx = df[df['song_clean'] == song_title_clean].index[0]
     sim_scores = list(enumerate(cosine_sim[idx]))
     sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
-    sim_scores = sim_scores[1:6]   # top 5
+    sim_scores = sim_scores[1:6]  # top 5
     song_indices = [i[0] for i in sim_scores]
     return df['song'].iloc[song_indices].tolist()
 
