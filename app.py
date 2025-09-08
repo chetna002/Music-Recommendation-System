@@ -2,10 +2,15 @@ import streamlit as st
 import pickle
 import pandas as pd
 
+import os  # <-- add this
+
+# Get the folder where app.py is located
+BASE_DIR = os.path.dirname(__file__)
+
 # Load preprocessed data and models
-df = pd.read_pickle("songs_df.pkl")
-tfidf_vectorizer = pickle.load(open("tfidf_vectorizer.pkl", "rb"))
-cosine_sim = pickle.load(open("cosine_sim.pkl", "rb"))
+df = pd.read_pickle(os.path.join(BASE_DIR, "songs_df.pkl"))
+tfidf_vectorizer = pickle.load(open(os.path.join(BASE_DIR, "tfidf_vectorizer.pkl"), "rb"))
+cosine_sim = pickle.load(open(os.path.join(BASE_DIR, "cosine_sim.pkl"), "rb"))
 
 # Function to get recommendations
 def recommend(song_title):
